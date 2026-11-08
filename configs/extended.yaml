@@ -1,0 +1,22 @@
+model: Qwen/Qwen3-0.6B
+revision: main
+configurations: [fp16, nf4]
+workloads:
+  - name: short-128x64
+    prompt_tokens: 128
+    output_tokens: 64
+  - name: medium-512x128
+    prompt_tokens: 512
+    output_tokens: 128
+  - name: long-2048x128
+    prompt_tokens: 2048
+    output_tokens: 128
+warmup_runs: 2
+measured_runs: 10
+seed: 42
+evaluation:
+  token_budget: 1024
+  context_tokens: 256
+  stride: 128
+results_dir: results/extended
+timeout_seconds: 3600

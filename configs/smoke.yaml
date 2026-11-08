@@ -1,0 +1,16 @@
+model: Qwen/Qwen3-0.6B
+revision: main  # Resolved to one immutable commit before any worker starts.
+configurations: [fp16, nf4]
+workloads:
+  - name: smoke-128x16
+    prompt_tokens: 128
+    output_tokens: 16
+warmup_runs: 1
+measured_runs: 3
+seed: 42
+evaluation:
+  token_budget: 256
+  context_tokens: 128
+  stride: 64
+results_dir: results
+timeout_seconds: 1800

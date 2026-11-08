@@ -1,0 +1,59 @@
+{
+  "status": "ok",
+  "memory_budget_gib": 7,
+  "max_perplexity_increase_pct": 5,
+  "selection": {
+    "suite_id": "84ba77c399c15665012ad60f284966847e97a8581cdee3fa4f702a0ba630a783",
+    "workload_id": "11634d8c758d6d25f8f9e9ebe253b8ebe049fd040dc8a81908de2729086c4d8e",
+    "workload": "smoke-128x16",
+    "configuration": "fp16",
+    "run_ids": [
+      "da76ea7b305c4623bdc672507ba4df8c"
+    ],
+    "peak_allocated_bytes": 1506160640,
+    "peak_reserved_bytes": 1556086784,
+    "perplexity": 45.970697442221194,
+    "perplexity_increase_pct": 0.0,
+    "quality_run_id": "fce10b2d139b4340b73f5605227a69e5",
+    "baseline_quality_run_id": "fce10b2d139b4340b73f5605227a69e5",
+    "ttft_s": {
+      "median": 0.0574879000000692,
+      "p25": 0.05695315000002665,
+      "p75": 0.057683949999955075,
+      "iqr": 0.000730799999928422,
+      "min": 0.056418399999984103,
+      "max": 0.05787999999984095,
+      "stdev": 0.0007565103237436746,
+      "n": 3
+    },
+    "decode_tokens_per_s": {
+      "median": 18.906498541671535,
+      "p25": 18.752601366376993,
+      "p75": 18.98219050763676,
+      "iqr": 0.22958914125976548,
+      "min": 18.59870419108245,
+      "max": 19.057882473601985,
+      "stdev": 0.23398687720997974,
+      "n": 3
+    },
+    "e2e_s": {
+      "median": 0.8508659000003718,
+      "p25": 0.8471801000000596,
+      "p75": 0.8576268500000879,
+      "iqr": 0.01044675000002826,
+      "min": 0.8434942999997475,
+      "max": 0.864387799999804,
+      "stdev": 0.010596545100615034,
+      "n": 3
+    }
+  },
+  "rejected": [
+    {
+      "configuration": "nf4",
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    }
+  ],
+  "scope": "Measured workload only; maximum lifecycle PyTorch reserved memory; no extrapolation"
+}
