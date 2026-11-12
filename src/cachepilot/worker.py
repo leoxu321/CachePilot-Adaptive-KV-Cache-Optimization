@@ -6,7 +6,7 @@ import sys
 import time
 import traceback
 
-from .backend import (SETTINGS, UnsupportedConfiguration, evaluate_model, generate_once,
+from .backend import (SETTINGS_V2, PRECISIONS, UnsupportedConfiguration, evaluate_model, generate_once,
                       load_backend, make_prompt, peak_memory, seed_runtime)
 from .config import fingerprint
 from .environment import comparison_environment, inspect_environment
@@ -15,11 +15,12 @@ from .storage import write_json
 
 
 def run(request):
-    record = {"schema_version": 1, "kind": request["kind"], "status": "error",
+    record = {"schema_version": 2, "kind": request["kind"], "status": "error",
               "created_at": datetime.now(timezone.utc).isoformat(),
               "run_id": request["run_id"], "configuration": request["configuration"],
               "config": request["config"], "model_revision": request["revision"],
-              "settings": SETTINGS, "workload": request.get("workload"),
+              "settings": SETTINGS_V2, "precision": PRECISIONS[request["configuration"]],
+              "workload": request.get("workload"),
               "measurement_boundary": "device-resident input through last device token; no text decoding"}
     try:
         import torch
@@ -31,7 +32,7 @@ def run(request):
         from importlib.resources import files
         import hashlib
         identity = {"model": request["config"]["model"], "revision": request["revision"],
-                    "settings": SETTINGS, "seed": request["config"]["seed"],
+                    "settings": SETTINGS_V2, "seed": request["config"]["seed"],
                     "evaluation": request["config"]["evaluation"],
                     "corpus_sha256": hashlib.sha256(files("cachepilot").joinpath("data/quality.txt").read_bytes()).hexdigest(),
                     "environment": comparison_environment(env)}
@@ -51,11 +52,14 @@ def run(request):
             if request["configuration"] == "nf4" else None)
         if request["kind"] == "benchmark":
             workload = request["workload"]
+            batch = workload.get("batch_size", 1)
+            if workload["prompt_tokens"] + workload["output_tokens"] > model.config.max_position_embeddings:
+                raise ValueError("Input plus output tokens exceed actual model context limit")
             ids, prompt = make_prompt(tokenizer, workload["prompt_tokens"])
             record["prompt"] = prompt
             record["workload_id"] = fingerprint({"input_sha256": prompt["input_sha256"],
-                "output_tokens": workload["output_tokens"], "settings": SETTINGS})
-            inputs = torch.tensor([ids], dtype=torch.long, device="cuda:0")
+                "output_tokens": workload["output_tokens"], "batch_size": batch, "settings": SETTINGS_V2})
+            inputs = torch.tensor([ids] * batch, dtype=torch.long, device="cuda:0")
             warmups = []
             for _ in range(request["config"]["warmup_runs"]):
                 torch.cuda.reset_peak_memory_stats(0)
@@ -69,7 +73,7 @@ def run(request):
             record["samples"] = samples
             record["summary"] = {key: summarize([x[key] for x in samples]) for key in (
                 "ttft_s", "decode_s", "decode_tokens_per_s", "e2e_s",
-                "peak_allocated_bytes", "peak_reserved_bytes")}
+                "peak_allocated_bytes", "peak_reserved_bytes", "aggregate_decode_tokens_per_s")}
             phases = [record["load_memory"], *warmups, *samples]
         else:
             torch.cuda.reset_peak_memory_stats(0)

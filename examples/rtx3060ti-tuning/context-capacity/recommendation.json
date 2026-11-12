@@ -1,0 +1,181 @@
+{
+  "status": "ok",
+  "objective": "context",
+  "memory_budget_gib": 1.6,
+  "max_perplexity_increase_pct": 5,
+  "selection": {
+    "suite_id": "bd5506a323f5af49d9378b650ec216c0e782b4991e17d74b117468e772c01a7a",
+    "workload_id": "7b33a4b9c51e61bc59408db4d60de0cd95137d2bcfdd1678ccecd09443d3853c",
+    "workload": "capacity-prompt_tokens-1024",
+    "prompt_tokens": 1024,
+    "output_tokens": 16,
+    "batch_size": 1,
+    "configuration": "fp16",
+    "run_ids": [
+      "9659c650d08c4df3adfb0981f90c3afd",
+      "caab9440e6704e0a922e343d771d71f5"
+    ],
+    "peak_allocated_bytes": 1552071680,
+    "peak_reserved_bytes": 1583349760,
+    "perplexity": 45.970697442221194,
+    "perplexity_increase_pct": 0.0,
+    "quality_run_id": "8beb004870814479b69a36fa9c5b3119",
+    "baseline_quality_run_id": "8beb004870814479b69a36fa9c5b3119",
+    "ttft_s": {
+      "median": 0.16232794999996258,
+      "p25": 0.16021092500045597,
+      "p75": 0.16495347500040225,
+      "iqr": 0.004742549999946277,
+      "min": 0.15995870000006107,
+      "max": 0.17352260000006936,
+      "stdev": 0.005235839903074445,
+      "n": 6
+    },
+    "decode_tokens_per_s": {
+      "median": 14.355812453650206,
+      "p25": 14.203260652197848,
+      "p75": 14.938341598036908,
+      "iqr": 0.7350809458390604,
+      "min": 13.991343089650115,
+      "max": 15.38934583277606,
+      "stdev": 0.5555519091309925,
+      "n": 6
+    },
+    "e2e_s": {
+      "median": 1.2137045999998008,
+      "p25": 1.1680162749996725,
+      "p75": 1.2179057750001903,
+      "iqr": 0.04988950000051773,
+      "min": 1.1349067999999534,
+      "max": 1.2365232000001924,
+      "stdev": 0.04070278343195443,
+      "n": 6
+    },
+    "aggregate_decode_tokens_per_s": {
+      "median": 14.355812453650206,
+      "p25": 14.203260652197848,
+      "p75": 14.938341598036908,
+      "iqr": 0.7350809458390604,
+      "min": 13.991343089650115,
+      "max": 15.38934583277606,
+      "stdev": 0.5555519091309925,
+      "n": 6
+    }
+  },
+  "rejected": [
+    {
+      "configuration": "fp16",
+      "workload": "capacity-prompt_tokens-4096",
+      "run_ids": [
+        "bd13577986dc4d54a2d470efe4c4cab8"
+      ],
+      "reasons": [
+        "memory budget exceeded"
+      ]
+    },
+    {
+      "configuration": "nf4",
+      "workload": "capacity-prompt_tokens-4096",
+      "run_ids": [
+        "51ae630e25a54f3493e721dd2ff8b5f0"
+      ],
+      "reasons": [
+        "memory budget exceeded",
+        "perplexity constraint exceeded"
+      ]
+    },
+    {
+      "configuration": "nf4",
+      "workload": "capacity-prompt_tokens-512",
+      "run_ids": [
+        "8ea7beae40904554814a64cc54feb41e"
+      ],
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    },
+    {
+      "configuration": "nf4",
+      "workload": "capacity-prompt_tokens-1024",
+      "run_ids": [
+        "0eea7d2ca94a40a5a997dafcac94e598",
+        "d3ce086d445e48cbba15e776bf6eb96d"
+      ],
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    },
+    {
+      "configuration": "fp16",
+      "workload": "capacity-prompt_tokens-2048",
+      "run_ids": [
+        "791f51821ca84497910e0eab173f8705"
+      ],
+      "reasons": [
+        "memory budget exceeded"
+      ]
+    },
+    {
+      "configuration": "nf4",
+      "workload": "capacity-prompt_tokens-2048",
+      "run_ids": [
+        "ea42c5e7b3fd431695ea431ca24f0f88"
+      ],
+      "reasons": [
+        "memory budget exceeded",
+        "perplexity constraint exceeded"
+      ]
+    },
+    {
+      "configuration": "nf4",
+      "workload": "capacity-prompt_tokens-256",
+      "run_ids": [
+        "0ce2a61defb84a3a9a416959f09baa5d"
+      ],
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    },
+    {
+      "configuration": "nf4",
+      "workload": "capacity-prompt_tokens-128",
+      "run_ids": [
+        "e808375b1dc0482b9d41266b7ffdb03f"
+      ],
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    },
+    {
+      "configuration": "fp16",
+      "workload": "capacity-prompt_tokens-512",
+      "run_ids": [
+        "4cc1315f5ece4a01b07250362433c8f8"
+      ],
+      "reasons": [
+        "feasible but ranked behind winner"
+      ]
+    },
+    {
+      "configuration": "fp16",
+      "workload": "capacity-prompt_tokens-256",
+      "run_ids": [
+        "71d46ca4f01c44a5a9f013bfeb1f2075"
+      ],
+      "reasons": [
+        "feasible but ranked behind winner"
+      ]
+    },
+    {
+      "configuration": "fp16",
+      "workload": "capacity-prompt_tokens-128",
+      "run_ids": [
+        "a80b09e4f20749f393d28aca19d94dee"
+      ],
+      "reasons": [
+        "feasible but ranked behind winner"
+      ]
+    }
+  ],
+  "scope": "Measured workload only; maximum lifecycle PyTorch reserved memory; no extrapolation"
+}

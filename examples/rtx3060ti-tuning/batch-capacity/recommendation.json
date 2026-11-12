@@ -1,0 +1,79 @@
+{
+  "status": "ok",
+  "objective": "throughput",
+  "memory_budget_gib": 1.9,
+  "max_perplexity_increase_pct": 5,
+  "selection": {
+    "suite_id": "bd5506a323f5af49d9378b650ec216c0e782b4991e17d74b117468e772c01a7a",
+    "workload_id": "3d63e191d41cfdbec9e0e6d4231bcc8bcd074814502999dd05e2d54271ab5e6e",
+    "workload": "capacity-batch_size-4",
+    "prompt_tokens": 128,
+    "output_tokens": 16,
+    "batch_size": 4,
+    "configuration": "fp16",
+    "run_ids": [
+      "034c15588caf4d559140ae8a534dc406",
+      "10e8ebd00d594784a0fd3f5b8afd511f"
+    ],
+    "peak_allocated_bytes": 1506160640,
+    "peak_reserved_bytes": 1595932672,
+    "perplexity": 45.970697442221194,
+    "perplexity_increase_pct": 0.0,
+    "quality_run_id": "8beb004870814479b69a36fa9c5b3119",
+    "baseline_quality_run_id": "8beb004870814479b69a36fa9c5b3119",
+    "ttft_s": {
+      "median": 0.062121749999732856,
+      "p25": 0.06006914999966284,
+      "p75": 0.06406049999986863,
+      "iqr": 0.0039913500002057845,
+      "min": 0.05760669999926904,
+      "max": 0.08064629999989847,
+      "stdev": 0.008298915503677175,
+      "n": 6
+    },
+    "decode_tokens_per_s": {
+      "median": 16.456049071611552,
+      "p25": 15.907975725063059,
+      "p75": 16.473557225823974,
+      "iqr": 0.5655815007609153,
+      "min": 15.507516027787535,
+      "max": 17.282487793371633,
+      "stdev": 0.6316084985854754,
+      "n": 6
+    },
+    "e2e_s": {
+      "median": 0.983388649999597,
+      "p25": 0.9721871750000446,
+      "p75": 1.0066324999995686,
+      "iqr": 0.03444532499952402,
+      "min": 0.9276386999999886,
+      "max": 1.031656500000281,
+      "stdev": 0.03611523351648032,
+      "n": 6
+    },
+    "aggregate_decode_tokens_per_s": {
+      "median": 65.82419628644621,
+      "p25": 63.631902900252236,
+      "p75": 65.8942289032959,
+      "iqr": 2.262326003043661,
+      "min": 62.03006411115014,
+      "max": 69.12995117348653,
+      "stdev": 2.5264339943419016,
+      "n": 6
+    }
+  },
+  "rejected": [
+    {
+      "configuration": "nf4",
+      "workload": "capacity-batch_size-4",
+      "run_ids": [
+        "0014d3b7b0d3448cb84cf8bddbe137cc",
+        "bc44783221d64a1d995bef9e2b016de0"
+      ],
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    }
+  ],
+  "scope": "Measured workload only; maximum lifecycle PyTorch reserved memory; no extrapolation"
+}

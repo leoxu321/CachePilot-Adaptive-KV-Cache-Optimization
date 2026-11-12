@@ -1,0 +1,14 @@
+* text=auto
+*.py text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.txt text eol=lf
+*.toml text eol=lf
+# The versioned corpus hash must be identical after a Windows checkout.
+src/cachepilot/data/quality.txt text eol=lf
+# Preserve the original Windows worker artifact bytes as well as their values.
+examples/rtx3060ti-tuning/**/*.result.json -text whitespace=cr-at-eol
+examples/rtx3060ti-tuning/**/capacity.json -text whitespace=cr-at-eol

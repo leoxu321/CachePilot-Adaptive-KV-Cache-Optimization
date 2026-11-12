@@ -1,0 +1,256 @@
+{
+  "schema_version": 2,
+  "kind": "evaluate",
+  "status": "ok",
+  "created_at": "2026-11-08T23:59:19.964427+00:00",
+  "run_id": "c0f653638e3c42bebea5a4bb67819c90",
+  "configuration": "nf4",
+  "config": {
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "configurations": [
+      "fp16",
+      "nf4"
+    ],
+    "workloads": [
+      {
+        "name": "capacity-smoke",
+        "batch_size": 1,
+        "prompt_tokens": 128,
+        "output_tokens": 16
+      }
+    ],
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "seed": 42,
+    "evaluation": {
+      "token_budget": 256,
+      "context_tokens": 128,
+      "stride": 64
+    },
+    "results_dir": "results/capacity-smoke",
+    "timeout_seconds": 120,
+    "capacity": {
+      "axis": "batch_size",
+      "candidates": [
+        1,
+        2,
+        4
+      ],
+      "memory_budget_gb": 2,
+      "safety_margin_gb": 0.1,
+      "confirmation_runs": 1
+    }
+  },
+  "model_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "settings": {
+    "backend": "transformers",
+    "attention": "sdpa",
+    "kv_cache": "dynamic",
+    "kv_dtype": "float16",
+    "compute_dtype": "float16",
+    "generation": "greedy",
+    "enable_thinking": false,
+    "stop_on_eos": false,
+    "cpu_offload": false,
+    "device": "cuda:0",
+    "tf32": false,
+    "prompt_recipe": "synthetic-chat-v1",
+    "measurement_version": 2
+  },
+  "precision": {
+    "weights": "bitsandbytes-nf4",
+    "compute": "float16",
+    "kv": "float16",
+    "double_quant": false,
+    "storage": "uint8"
+  },
+  "workload": null,
+  "measurement_boundary": "device-resident input through last device token; no text decoding",
+  "environment": {
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]",
+    "executable": "E:\\Projects\\CachePilot-Adaptive-KV-Cache-Optimization\\.venv\\Scripts\\python.exe",
+    "machine": "AMD64",
+    "cpu": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+    "system_ram_bytes": 34253627392,
+    "packages": {
+      "cachepilot": "0.2.0",
+      "torch": "2.10.0+cu128",
+      "transformers": "4.57.6",
+      "accelerate": "1.12.0",
+      "bitsandbytes": "0.49.2",
+      "huggingface-hub": "0.36.2",
+      "tokenizers": "0.22.2",
+      "safetensors": "0.8.0",
+      "numpy": "2.5.4",
+      "PyYAML": "6.0.3"
+    },
+    "cuda_available": true,
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": null,
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "PYTHONHASHSEED": "42",
+      "HF_HUB_OFFLINE": "1",
+      "PYTORCH_CUDA_ALLOC_CONF": null
+    },
+    "nvidia_smi": "0, NVIDIA GeForce RTX 3060 Ti, GPU-a2e03a77-241c-ffde-6f93-f63f45032af3, 610.88, 8192, 2926",
+    "torch_cuda_runtime": "12.8",
+    "cudnn_version": 91002,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3060 Ti",
+      "total_memory_bytes": 8589279232,
+      "free_memory_bytes": 7486832640,
+      "runtime_total_bytes": 8589279232,
+      "compute_capability": [
+        8,
+        6
+      ],
+      "uuid": "a2e03a77-241c-ffde-6f93-f63f45032af3"
+    },
+    "missing_inference_packages": [],
+    "inference_ready": true,
+    "guidance": "CUDA is ready; native Windows is supported. WSL2 is optional."
+  },
+  "suite_identity": {
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "settings": {
+      "backend": "transformers",
+      "attention": "sdpa",
+      "kv_cache": "dynamic",
+      "kv_dtype": "float16",
+      "compute_dtype": "float16",
+      "generation": "greedy",
+      "enable_thinking": false,
+      "stop_on_eos": false,
+      "cpu_offload": false,
+      "device": "cuda:0",
+      "tf32": false,
+      "prompt_recipe": "synthetic-chat-v1",
+      "measurement_version": 2
+    },
+    "seed": 42,
+    "evaluation": {
+      "token_budget": 256,
+      "context_tokens": 128,
+      "stride": 64
+    },
+    "corpus_sha256": "d6ef29523203aa8d93c7365b1d34d79bec15c3c3b8cdfa94df34aed438ba83ef",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "python": "3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]",
+      "cpu": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+      "packages": {
+        "cachepilot": "0.2.0",
+        "torch": "2.10.0+cu128",
+        "transformers": "4.57.6",
+        "accelerate": "1.12.0",
+        "bitsandbytes": "0.49.2",
+        "huggingface-hub": "0.36.2",
+        "tokenizers": "0.22.2",
+        "safetensors": "0.8.0",
+        "numpy": "2.5.4",
+        "PyYAML": "6.0.3"
+      },
+      "cuda_runtime": "12.8",
+      "cudnn": 91002,
+      "drivers": [
+        "610.88"
+      ],
+      "gpu": {
+        "name": "NVIDIA GeForce RTX 3060 Ti",
+        "total_memory_bytes": 8589279232,
+        "compute_capability": [
+          8,
+          6
+        ],
+        "uuid": "a2e03a77-241c-ffde-6f93-f63f45032af3"
+      },
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": null,
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "PYTHONHASHSEED": "42",
+        "HF_HUB_OFFLINE": "1",
+        "PYTORCH_CUDA_ALLOC_CONF": null
+      }
+    }
+  },
+  "suite_id": "bd5506a323f5af49d9378b650ec216c0e782b4991e17d74b117468e772c01a7a",
+  "load_s": 7.879189100000076,
+  "load_memory": {
+    "peak_allocated_bytes": 933494784,
+    "peak_reserved_bytes": 1340080128
+  },
+  "actual_model_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "quantization": {
+    "quant_method": "bitsandbytes",
+    "_load_in_8bit": false,
+    "_load_in_4bit": true,
+    "llm_int8_threshold": 6.0,
+    "llm_int8_skip_modules": null,
+    "llm_int8_enable_fp32_cpu_offload": false,
+    "llm_int8_has_fp16_weight": false,
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": false,
+    "bnb_4bit_compute_dtype": "float16",
+    "bnb_4bit_quant_storage": "uint8",
+    "load_in_4bit": true,
+    "load_in_8bit": false
+  },
+  "quality": {
+    "perplexity": 51.77800556008768,
+    "nll_sum": 1010.4231567382812,
+    "target_tokens": 256,
+    "protocol": {
+      "token_budget": 256,
+      "context_tokens": 128,
+      "stride": 64,
+      "dataset_version": "cachepilot-prose-v1",
+      "corpus_sha256": "d6ef29523203aa8d93c7365b1d34d79bec15c3c3b8cdfa94df34aed438ba83ef",
+      "token_ids_sha256": "916d146fef323e9818be8a255103d1c8f38148e6c9f7f43aff8c3077c864856c",
+      "available_tokens": 1632,
+      "add_special_tokens": false,
+      "chat_template": false,
+      "rule": "sliding-window-v1; first token context only; each target scored once"
+    },
+    "protocol_id": "42ab9cdbaf101bd00ca2caf23ed2db50c60d91699ee31e9db85eddb104352190",
+    "windows": [
+      {
+        "input_start": 0,
+        "input_end": 65,
+        "target_start": 1,
+        "target_tokens": 64,
+        "nll_sum": 247.06822204589844
+      },
+      {
+        "input_start": 1,
+        "input_end": 129,
+        "target_start": 65,
+        "target_tokens": 64,
+        "nll_sum": 256.51171875
+      },
+      {
+        "input_start": 65,
+        "input_end": 193,
+        "target_start": 129,
+        "target_tokens": 64,
+        "nll_sum": 244.3587188720703
+      },
+      {
+        "input_start": 129,
+        "input_end": 257,
+        "target_start": 193,
+        "target_tokens": 64,
+        "nll_sum": 262.4844970703125
+      }
+    ]
+  },
+  "evaluation_s": 0.7810978999996223,
+  "evaluation_memory": {
+    "peak_allocated_bytes": 709380608,
+    "peak_reserved_bytes": 1344274432
+  },
+  "peak_allocated_bytes": 933494784,
+  "peak_reserved_bytes": 1344274432
+}

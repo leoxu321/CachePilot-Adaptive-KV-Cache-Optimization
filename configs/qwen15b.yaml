@@ -1,0 +1,16 @@
+model: Qwen/Qwen2.5-1.5B-Instruct
+revision: 989aa7980e4cf806f80c7fef2b1adb7bc71aa306
+configurations: [fp16, nf4]
+workloads:
+  - name: smoke-128x16
+    prompt_tokens: 128
+    output_tokens: 16
+warmup_runs: 1
+measured_runs: 3
+seed: 42
+evaluation:
+  token_budget: 256
+  context_tokens: 128
+  stride: 64
+results_dir: results/qwen15b
+timeout_seconds: 600

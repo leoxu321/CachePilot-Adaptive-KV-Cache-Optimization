@@ -1,0 +1,77 @@
+{
+  "status": "ok",
+  "objective": "latency",
+  "memory_budget_gib": 7,
+  "max_perplexity_increase_pct": 5,
+  "selection": {
+    "suite_id": "1c7157cc81de3d3053e2804b2fdb73aa0f05268953706938120508a499848a25",
+    "workload_id": "9d2e34e42a0db581fe672153854e31c7fcf690c3c55e366a95ad75268a77fe43",
+    "workload": "medium-512x128",
+    "prompt_tokens": 512,
+    "output_tokens": 128,
+    "batch_size": 1,
+    "configuration": "fp16",
+    "run_ids": [
+      "44cd3f8b167f457f8e329fe928f61602"
+    ],
+    "peak_allocated_bytes": 1506160640,
+    "peak_reserved_bytes": 1595932672,
+    "perplexity": 39.22277766151792,
+    "perplexity_increase_pct": 0.0,
+    "quality_run_id": "c43f3cfebeb84c7992828e7a65be22a4",
+    "baseline_quality_run_id": "c43f3cfebeb84c7992828e7a65be22a4",
+    "ttft_s": {
+      "median": 0.08493954999903508,
+      "p25": 0.07945647499900588,
+      "p75": 0.09208287500086954,
+      "iqr": 0.012626400001863658,
+      "min": 0.06703640000159794,
+      "max": 0.09558629999992263,
+      "stdev": 0.008988979271454934,
+      "n": 10
+    },
+    "decode_tokens_per_s": {
+      "median": 18.146338157370288,
+      "p25": 17.834151066645486,
+      "p75": 18.530426098940612,
+      "iqr": 0.6962750322951266,
+      "min": 17.22733176140719,
+      "max": 18.98548447592343,
+      "stdev": 0.5809888190542254,
+      "n": 10
+    },
+    "e2e_s": {
+      "median": 7.0766432999989775,
+      "p25": 6.939255474998845,
+      "p75": 7.192745500000001,
+      "iqr": 0.253490025001156,
+      "min": 6.775104800000918,
+      "max": 7.466423500000019,
+      "stdev": 0.22703071336096028,
+      "n": 10
+    },
+    "aggregate_decode_tokens_per_s": {
+      "median": 18.146338157370288,
+      "p25": 17.834151066645486,
+      "p75": 18.530426098940612,
+      "iqr": 0.6962750322951266,
+      "min": 17.22733176140719,
+      "max": 18.98548447592343,
+      "stdev": 0.5809888190542254,
+      "n": 10
+    }
+  },
+  "rejected": [
+    {
+      "configuration": "nf4",
+      "workload": "medium-512x128",
+      "run_ids": [
+        "aaf37de0e3444184af25471281a07498"
+      ],
+      "reasons": [
+        "perplexity constraint exceeded"
+      ]
+    }
+  ],
+  "scope": "Measured workload only; maximum lifecycle PyTorch reserved memory; no extrapolation"
+}

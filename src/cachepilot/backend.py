@@ -13,6 +13,13 @@ SETTINGS = {"backend": "transformers", "attention": "sdpa", "batch_size": 1,
             "generation": "greedy", "enable_thinking": False, "stop_on_eos": False,
             "cpu_offload": False, "device": "cuda:0", "tf32": False,
             "prompt_recipe": "synthetic-chat-v1", "measurement_version": 1}
+# v1 is kept immutable so archived measurements remain readable.
+SETTINGS_V2 = {k: v for k, v in SETTINGS.items() if k != "batch_size"} | {"measurement_version": 2}
+PRECISIONS = {"fp16": {"weights": "float16", "compute": "float16", "kv": "float16"},
+              "nf4": {"weights": "bitsandbytes-nf4", "compute": "float16", "kv": "float16",
+                      "double_quant": False, "storage": "uint8"}}
+DATASET_VERSION = "cachepilot-prose-v1"
+DATASET_SHA256 = "d6ef29523203aa8d93c7365b1d34d79bec15c3c3b8cdfa94df34aed438ba83ef"
 PROMPT_TEXT = ("Explain how a library organizes books and helps readers find reliable information. "
                "Compare careful record keeping with guessing, using a simple example. ")
 
@@ -114,7 +121,11 @@ def generate_once(model, input_ids, output_tokens):
     # Verify the cache precision rather than merely claiming it was unchanged.
     if any(layer.keys.dtype != torch.float16 or layer.values.dtype != torch.float16 for layer in cache.layers):
         raise UnsupportedConfiguration("KV cache is not FP16")
-    metrics["generated_ids"] = torch.cat(generated, dim=1).cpu().tolist()[0]
+    batch = input_ids.shape[0]
+    metrics["batch_size"] = batch
+    metrics["aggregate_decode_tokens_per_s"] = batch * (output_tokens - 1) / (end - first)
+    tokens = torch.cat(generated, dim=1).cpu().tolist()
+    metrics["generated_ids"] = tokens[0] if batch == 1 else tokens
     return metrics
 
 
@@ -122,6 +133,8 @@ def evaluate_model(model, tokenizer, config):
     import torch
     import torch.nn.functional as F
     corpus = files("cachepilot").joinpath("data/quality.txt").read_bytes()
+    if hashlib.sha256(corpus).hexdigest() != DATASET_SHA256:
+        raise ValueError("Versioned quality corpus changed; assign a new dataset version before evaluating")
     ids = tokenizer.encode(corpus.decode("utf-8"), add_special_tokens=False)
     budget = config["token_budget"]
     if len(ids) < budget + 1:
@@ -142,7 +155,7 @@ def evaluate_model(model, tokenizer, config):
             windows.append({"input_start": start, "input_end": end, "target_start": target_start,
                             "target_tokens": end - target_start, "nll_sum": value})
             del out, logits, loss, inputs, targets
-    protocol = {**config, "corpus_sha256": hashlib.sha256(corpus).hexdigest(),
+    protocol = {**config, "dataset_version": DATASET_VERSION, "corpus_sha256": hashlib.sha256(corpus).hexdigest(),
                 "token_ids_sha256": fingerprint(selected), "available_tokens": len(ids),
                 "add_special_tokens": False, "chat_template": False,
                 "rule": "sliding-window-v1; first token context only; each target scored once"}

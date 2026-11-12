@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "search_id": "7e54f334590fb677bf5d604a88afecc230b93bfaf21280d93b5de63c37c767b4",
+  "identity": {
+    "config": {
+      "model": "Qwen/Qwen3-0.6B",
+      "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+      "configurations": [
+        "fp16",
+        "nf4"
+      ],
+      "workloads": [
+        {
+          "name": "context-validation",
+          "batch_size": 1,
+          "prompt_tokens": 128,
+          "output_tokens": 16
+        }
+      ],
+      "warmup_runs": 1,
+      "measured_runs": 3,
+      "seed": 42,
+      "evaluation": {
+        "token_budget": 256,
+        "context_tokens": 128,
+        "stride": 64
+      },
+      "results_dir": "results/capacity-context",
+      "timeout_seconds": 120,
+      "capacity": {
+        "axis": "prompt_tokens",
+        "candidates": [
+          128,
+          256,
+          512,
+          1024,
+          2048,
+          4096
+        ],
+        "memory_budget_gb": 1.65,
+        "safety_margin_gb": 0.05,
+        "confirmation_runs": 1
+      }
+    },
+    "resolved_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "model_context": 40960,
+    "effective_budget_bytes": 1717986918,
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "python": "3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]",
+      "cpu": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+      "packages": {
+        "cachepilot": "0.2.0",
+        "torch": "2.10.0+cu128",
+        "transformers": "4.57.6",
+        "accelerate": "1.12.0",
+        "bitsandbytes": "0.49.2",
+        "huggingface-hub": "0.36.2",
+        "tokenizers": "0.22.2",
+        "safetensors": "0.8.0",
+        "numpy": "2.5.4",
+        "PyYAML": "6.0.3"
+      },
+      "cuda_runtime": "12.8",
+      "cudnn": 91002,
+      "drivers": [
+        "610.88"
+      ],
+      "gpu": {
+        "name": "NVIDIA GeForce RTX 3060 Ti",
+        "total_memory_bytes": 8589279232,
+        "compute_capability": [
+          8,
+          6
+        ],
+        "uuid": "a2e03a77-241c-ffde-6f93-f63f45032af3"
+      },
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": null,
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "PYTHONHASHSEED": "42",
+        "HF_HUB_OFFLINE": "1",
+        "PYTORCH_CUDA_ALLOC_CONF": null
+      }
+    },
+    "settings": {
+      "backend": "transformers",
+      "attention": "sdpa",
+      "kv_cache": "dynamic",
+      "kv_dtype": "float16",
+      "compute_dtype": "float16",
+      "generation": "greedy",
+      "enable_thinking": false,
+      "stop_on_eos": false,
+      "cpu_offload": false,
+      "device": "cuda:0",
+      "tf32": false,
+      "prompt_recipe": "synthetic-chat-v1",
+      "measurement_version": 2
+    },
+    "precisions": {
+      "fp16": {
+        "weights": "float16",
+        "compute": "float16",
+        "kv": "float16"
+      },
+      "nf4": {
+        "weights": "bitsandbytes-nf4",
+        "compute": "float16",
+        "kv": "float16",
+        "double_quant": false,
+        "storage": "uint8"
+      }
+    },
+    "code_sha256": "d5825f8a242170ae48bac17418ace0d4111930dae42476a138e6583cfbb14c96"
+  },
+  "status": "complete",
+  "attempts": {
+    "fp16:128:0": {
+      "configuration": "fp16",
+      "candidate": 128,
+      "repeat": 0,
+      "run_id": "a80b09e4f20749f393d28aca19d94dee",
+      "workload": {
+        "name": "capacity-prompt_tokens-128",
+        "batch_size": 1,
+        "prompt_tokens": 128,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1556086784,
+      "worker_status": "ok",
+      "result_sha256": "567c965ac2fc82996ebae4628a8c17e6a889c8ad3e974b7f45c73c77c02a5582"
+    },
+    "fp16:256:0": {
+      "configuration": "fp16",
+      "candidate": 256,
+      "repeat": 0,
+      "run_id": "71d46ca4f01c44a5a9f013bfeb1f2075",
+      "workload": {
+        "name": "capacity-prompt_tokens-256",
+        "batch_size": 1,
+        "prompt_tokens": 256,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1572864000,
+      "worker_status": "ok",
+      "result_sha256": "0581b1e3a65de348fd5072d7499818d2802ce6c60fc198120c51b8595dd7eff5"
+    },
+    "fp16:1024:0": {
+      "configuration": "fp16",
+      "candidate": 1024,
+      "repeat": 0,
+      "run_id": "caab9440e6704e0a922e343d771d71f5",
+      "workload": {
+        "name": "capacity-prompt_tokens-1024",
+        "batch_size": 1,
+        "prompt_tokens": 1024,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1583349760,
+      "worker_status": "ok",
+      "result_sha256": "9480b335d4ee80297522b2e2a73991aab331350ab7bc0b57e93ad9975e583aa6"
+    },
+    "fp16:4096:0": {
+      "configuration": "fp16",
+      "candidate": 4096,
+      "repeat": 0,
+      "run_id": "bd13577986dc4d54a2d470efe4c4cab8",
+      "workload": {
+        "name": "capacity-prompt_tokens-4096",
+        "batch_size": 1,
+        "prompt_tokens": 4096,
+        "output_tokens": 16
+      },
+      "feasible": false,
+      "reason": "memory_budget",
+      "peak_reserved_bytes": 4552916992,
+      "worker_status": "ok",
+      "result_sha256": "e26c04fe5e0969b4b5149ba5e511cebc9eef1ef7759484681107d8cf22d78f9d"
+    },
+    "fp16:2048:0": {
+      "configuration": "fp16",
+      "candidate": 2048,
+      "repeat": 0,
+      "run_id": "791f51821ca84497910e0eab173f8705",
+      "workload": {
+        "name": "capacity-prompt_tokens-2048",
+        "batch_size": 1,
+        "prompt_tokens": 2048,
+        "output_tokens": 16
+      },
+      "feasible": false,
+      "reason": "memory_budget",
+      "peak_reserved_bytes": 2273312768,
+      "worker_status": "ok",
+      "result_sha256": "b9b6af8eb91608d9616fe8e8f3589dfbef7e4b93c86ae716f10ea214af3b3e47"
+    },
+    "fp16:512:0": {
+      "configuration": "fp16",
+      "candidate": 512,
+      "repeat": 0,
+      "run_id": "4cc1315f5ece4a01b07250362433c8f8",
+      "workload": {
+        "name": "capacity-prompt_tokens-512",
+        "batch_size": 1,
+        "prompt_tokens": 512,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1595932672,
+      "worker_status": "ok",
+      "result_sha256": "0335acd3ebbc2af8fe1728c6c985533f93364e1c3d16fc4a24c55e0727a968c9"
+    },
+    "fp16:1024:1": {
+      "configuration": "fp16",
+      "candidate": 1024,
+      "repeat": 1,
+      "run_id": "9659c650d08c4df3adfb0981f90c3afd",
+      "workload": {
+        "name": "capacity-prompt_tokens-1024",
+        "batch_size": 1,
+        "prompt_tokens": 1024,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1583349760,
+      "worker_status": "ok",
+      "result_sha256": "b5c0d947758adf9f58265425daeb70519c9a06de429403530a0b68b5907e8d32"
+    },
+    "nf4:128:0": {
+      "configuration": "nf4",
+      "candidate": 128,
+      "repeat": 0,
+      "run_id": "e808375b1dc0482b9d41266b7ffdb03f",
+      "workload": {
+        "name": "capacity-prompt_tokens-128",
+        "batch_size": 1,
+        "prompt_tokens": 128,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1365245952,
+      "worker_status": "ok",
+      "result_sha256": "e61229a0cb843ce316c3a590221137e42a54b3713c3c51de706c3aa984081666"
+    },
+    "nf4:256:0": {
+      "configuration": "nf4",
+      "candidate": 256,
+      "repeat": 0,
+      "run_id": "0ce2a61defb84a3a9a416959f09baa5d",
+      "workload": {
+        "name": "capacity-prompt_tokens-256",
+        "batch_size": 1,
+        "prompt_tokens": 256,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1386217472,
+      "worker_status": "ok",
+      "result_sha256": "e8011d8599224739550b6ded195b7bc225d8f8b23faec0d4cb04c06287964fcc"
+    },
+    "nf4:1024:0": {
+      "configuration": "nf4",
+      "candidate": 1024,
+      "repeat": 0,
+      "run_id": "0eea7d2ca94a40a5a997dafcac94e598",
+      "workload": {
+        "name": "capacity-prompt_tokens-1024",
+        "batch_size": 1,
+        "prompt_tokens": 1024,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1342177280,
+      "worker_status": "ok",
+      "result_sha256": "ac87b9e8ce30d9dba2c9a080ad33a448a7e92c5f43576e04aad962eb68773428"
+    },
+    "nf4:4096:0": {
+      "configuration": "nf4",
+      "candidate": 4096,
+      "repeat": 0,
+      "run_id": "51ae630e25a54f3493e721dd2ff8b5f0",
+      "workload": {
+        "name": "capacity-prompt_tokens-4096",
+        "batch_size": 1,
+        "prompt_tokens": 4096,
+        "output_tokens": 16
+      },
+      "feasible": false,
+      "reason": "memory_budget",
+      "peak_reserved_bytes": 4026531840,
+      "worker_status": "ok",
+      "result_sha256": "f6fcc1e50528ac71fdd8d24caaface2b85d00bdff4338b6d9ad918ef9e960074"
+    },
+    "nf4:2048:0": {
+      "configuration": "nf4",
+      "candidate": 2048,
+      "repeat": 0,
+      "run_id": "ea42c5e7b3fd431695ea431ca24f0f88",
+      "workload": {
+        "name": "capacity-prompt_tokens-2048",
+        "batch_size": 1,
+        "prompt_tokens": 2048,
+        "output_tokens": 16
+      },
+      "feasible": false,
+      "reason": "memory_budget",
+      "peak_reserved_bytes": 1881145344,
+      "worker_status": "ok",
+      "result_sha256": "82f7a24d6313c73ca23cc85c3afb96d06e4719ec2289c717fd1a35ca6ee38557"
+    },
+    "nf4:512:0": {
+      "configuration": "nf4",
+      "candidate": 512,
+      "repeat": 0,
+      "run_id": "8ea7beae40904554814a64cc54feb41e",
+      "workload": {
+        "name": "capacity-prompt_tokens-512",
+        "batch_size": 1,
+        "prompt_tokens": 512,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1405091840,
+      "worker_status": "ok",
+      "result_sha256": "87f1d7e62b7579578ed39ff012c9349add4661580546ba7cd7347f2fb8e25933"
+    },
+    "nf4:1024:1": {
+      "configuration": "nf4",
+      "candidate": 1024,
+      "repeat": 1,
+      "run_id": "d3ce086d445e48cbba15e776bf6eb96d",
+      "workload": {
+        "name": "capacity-prompt_tokens-1024",
+        "batch_size": 1,
+        "prompt_tokens": 1024,
+        "output_tokens": 16
+      },
+      "feasible": true,
+      "reason": "within_budget",
+      "peak_reserved_bytes": 1342177280,
+      "worker_status": "ok",
+      "result_sha256": "3e78697ee37ee3f3aa7abe318222e30d8fb550b9242f9fbbd0b3e5eb0e4a0c15"
+    }
+  },
+  "boundaries": {
+    "fp16": {
+      "selected": 1024,
+      "selected_index": 3,
+      "next_infeasible": 2048,
+      "range_exhausted": false,
+      "observed": {
+        "128": true,
+        "256": true,
+        "512": true,
+        "1024": true,
+        "2048": false,
+        "4096": false
+      },
+      "assumption": "approximately monotonic feasibility; unsampled gaps are not measurements"
+    },
+    "nf4": {
+      "selected": 1024,
+      "selected_index": 3,
+      "next_infeasible": 2048,
+      "range_exhausted": false,
+      "observed": {
+        "128": true,
+        "256": true,
+        "512": true,
+        "1024": true,
+        "2048": false,
+        "4096": false
+      },
+      "assumption": "approximately monotonic feasibility; unsampled gaps are not measurements"
+    }
+  }
+}

@@ -17,7 +17,7 @@ def close(actual, expected, name):
 
 
 def validate_record(record):
-    if not isinstance(record, dict) or record.get("schema_version") != 1:
+    if not isinstance(record, dict) or record.get("schema_version") not in (1, 2):
         raise ValueError("Unsupported result schema")
     if record.get("kind") not in ("benchmark", "evaluate"):
         raise ValueError("Invalid result kind")
@@ -51,9 +51,18 @@ def validate_record(record):
             raise ValueError("Inconsistent model revision")
         if record["settings"] != identity["settings"]:
             raise ValueError("Inconsistent backend settings")
-        from .backend import SETTINGS
-        if record["settings"] != SETTINGS:
+        from .backend import SETTINGS, SETTINGS_V2, PRECISIONS
+        v2 = record["schema_version"] == 2
+        if record["settings"] != (SETTINGS_V2 if v2 else SETTINGS):
             raise ValueError("Unsupported measurement protocol")
+        if v2 and record["precision"] != PRECISIONS[record["configuration"]]:
+            raise ValueError("Unsupported precision settings")
+        if v2 and record["configuration"] == "nf4":
+            quant = record["quantization"]
+            for key, value in {"bnb_4bit_quant_type": "nf4", "bnb_4bit_compute_dtype": "float16",
+                               "bnb_4bit_use_double_quant": False, "bnb_4bit_quant_storage": "uint8"}.items():
+                if quant.get(key) != value:
+                    raise ValueError("Actual quantization settings differ from declared precision")
         positive(record["load_s"], "load_s")
         if record["kind"] == "benchmark":
             samples = record["samples"]
@@ -66,16 +75,29 @@ def validate_record(record):
                 raise ValueError("Input token IDs must be nonnegative integers")
             if len(prompt["input_ids"]) != record["workload"]["prompt_tokens"] or fingerprint(prompt["input_ids"]) != prompt["input_sha256"]:
                 raise ValueError("Prompt length or fingerprint mismatch")
-            if record["workload_id"] != fingerprint({"input_sha256": prompt["input_sha256"],
-                    "output_tokens": record["workload"]["output_tokens"], "settings": record["settings"]}):
+            batch = record["workload"].get("batch_size", 1)
+            if type(batch) is not int or batch < 1 or (not v2 and batch != 1):
+                raise ValueError("Invalid batch size")
+            workload_identity = {"input_sha256": prompt["input_sha256"],
+                    "output_tokens": record["workload"]["output_tokens"], "settings": record["settings"]}
+            if v2:
+                workload_identity["batch_size"] = batch
+            if record["workload_id"] != fingerprint(workload_identity):
                 raise ValueError("Invalid workload fingerprint")
             for sample in samples + record["warmup_runs"]:
-                if sample["output_tokens"] != record["workload"]["output_tokens"] or len(sample["generated_ids"]) != sample["output_tokens"]:
+                sequences = [sample["generated_ids"]] if batch == 1 else sample["generated_ids"]
+                if sample["output_tokens"] != record["workload"]["output_tokens"] or len(sequences) != batch or any(len(seq) != sample["output_tokens"] for seq in sequences):
                     raise ValueError("Output token count mismatch")
                 expected = timing_metrics(sample["ttft_s"], sample["decode_s"], sample["output_tokens"])
                 for key, value in expected.items():
                     close(sample[key], value, key)
-            for key in ("ttft_s", "decode_s", "decode_tokens_per_s", "e2e_s", "peak_allocated_bytes", "peak_reserved_bytes"):
+                if v2:
+                    close(sample["batch_size"], batch, "batch_size")
+                    close(sample["aggregate_decode_tokens_per_s"], batch * expected["decode_tokens_per_s"], "aggregate throughput")
+            summary_keys = ["ttft_s", "decode_s", "decode_tokens_per_s", "e2e_s", "peak_allocated_bytes", "peak_reserved_bytes"]
+            if v2:
+                summary_keys.append("aggregate_decode_tokens_per_s")
+            for key in summary_keys:
                 expected = summarize([s[key] for s in samples])
                 for stat, value in expected.items():
                     close(record["summary"][key][stat], value, f"summary.{key}.{stat}")
@@ -156,6 +178,9 @@ def comparison_rows(records):
         quality = quality_for(records, suite, configuration)
         compatible = baseline and quality and baseline["quality"]["protocol_id"] == quality["quality"]["protocol_id"]
         row = {"suite_id": suite, "workload_id": workload_id, "workload": runs[0]["workload"]["name"],
+               "prompt_tokens": runs[0]["workload"]["prompt_tokens"],
+               "output_tokens": runs[0]["workload"]["output_tokens"],
+               "batch_size": runs[0]["workload"].get("batch_size", 1),
                "configuration": configuration, "run_ids": [r["run_id"] for r in runs],
                "peak_allocated_bytes": max(r["peak_allocated_bytes"] for r in runs),
                "peak_reserved_bytes": max(r["peak_reserved_bytes"] for r in runs),
@@ -166,26 +191,54 @@ def comparison_rows(records):
         samples = [s for r in runs for s in r["samples"]]
         for key in ("ttft_s", "decode_tokens_per_s", "e2e_s"):
             row[key] = summarize([s[key] for s in samples])
+        row["aggregate_decode_tokens_per_s"] = summarize([
+            s.get("aggregate_decode_tokens_per_s", s["decode_tokens_per_s"]) for s in samples])
         rows.append(row)
     return rows
 
 
-def recommend(records, memory_budget_gb, max_increase_pct, workload=None, suite=None):
+def recommend(records, memory_budget_gb, max_increase_pct, workload=None, suite=None,
+              objective="latency", batch_size=None, output_tokens=None):
     positive(memory_budget_gb, "memory budget")
     positive(max_increase_pct, "maximum perplexity increase", allow_zero=True)
     rows = comparison_rows(records)
+    if objective not in ("latency", "throughput", "context"):
+        raise ValueError("objective must be latency, throughput, or context")
     if suite:
         rows = [r for r in rows if r["suite_id"] == suite]
     if workload:
         rows = [r for r in rows if workload in (r["workload"], r["workload_id"])]
+    if batch_size is not None:
+        rows = [r for r in rows if r["batch_size"] == batch_size]
+    if output_tokens is not None:
+        rows = [r for r in rows if r["output_tokens"] == output_tokens]
     if len({r["suite_id"] for r in rows}) > 1:
         raise ValueError("Multiple comparison suites found; use --suite with a full suite ID from the report")
-    if len({r["workload_id"] for r in rows}) > 1:
+    if objective != "context" and len({r["workload_id"] for r in rows}) > 1:
         raise ValueError("Multiple workloads found; specify --workload")
+    if objective == "context" and len({(r["batch_size"], r["output_tokens"]) for r in rows}) > 1:
+        raise ValueError("Context comparisons require matched batch and output lengths; use --batch-size and --output-tokens")
     feasible = []
     rejected = []
+    failures = [r for r in records if r["kind"] == "benchmark" and r["status"] != "ok"]
+    def matches_failure(row, failure):
+        if failure["configuration"] != row["configuration"] or not failure.get("workload"):
+            return False
+        if failure.get("suite_id") and failure["suite_id"] != row["suite_id"]:
+            return False
+        reference = next(r for r in records if r["run_id"] == row["run_ids"][0])
+        if (failure.get("model_revision") != reference["model_revision"]
+                or failure.get("config", {}).get("model") != reference["config"]["model"]):
+            return False
+        shape = failure["workload"]
+        return (shape.get("prompt_tokens"), shape.get("output_tokens"), shape.get("batch_size", 1)) == (
+            row["prompt_tokens"], row["output_tokens"], row["batch_size"])
     for row in rows:
         reasons = []
+        failed_attempts = [r for r in failures if matches_failure(row, r)]
+        if failed_attempts:
+            reasons.append("unverified after failed matched measurement: " + ", ".join(
+                f"{r['status']} ({r['run_id']})" for r in failed_attempts))
         if row["peak_reserved_bytes"] > memory_budget_gb * 2**30:
             reasons.append("memory budget exceeded")
         if row["perplexity_increase_pct"] is None:
@@ -194,11 +247,36 @@ def recommend(records, memory_budget_gb, max_increase_pct, workload=None, suite=
                 row["perplexity_increase_pct"], max_increase_pct, rel_tol=1e-12, abs_tol=1e-12):
             reasons.append("perplexity constraint exceeded")
         if reasons:
-            rejected.append({"configuration": row["configuration"], "reasons": reasons})
+            rejected.append({"configuration": row["configuration"], "workload": row["workload"],
+                             "run_ids": row["run_ids"], "reasons": reasons})
         else:
             feasible.append(row)
-    winner = min(feasible, key=lambda r: (r["e2e_s"]["median"], r["configuration"])) if feasible else None
+    def rank(row):
+        score = {"latency": row["e2e_s"]["median"],
+                 "throughput": -row["aggregate_decode_tokens_per_s"]["median"],
+                 "context": -row["prompt_tokens"]}[objective]
+        return score, row["configuration"], row["workload_id"]
+    winner = min(feasible, key=rank) if feasible else None
+    for row in feasible:
+        if row is not winner:
+            rejected.append({"configuration": row["configuration"], "workload": row["workload"],
+                             "run_ids": row["run_ids"], "reasons": ["feasible but ranked behind winner"]})
+    # Failed-only alternatives have no numeric row but still deserve an explanation.
+    for failure in failures:
+        shape = failure.get("workload") or {}
+        if suite and failure.get("suite_id") != suite:
+            continue
+        if workload and workload not in (shape.get("name"), failure.get("workload_id")):
+            continue
+        if batch_size is not None and shape.get("batch_size", 1) != batch_size:
+            continue
+        if output_tokens is not None and shape.get("output_tokens") != output_tokens:
+            continue
+        if not any(matches_failure(row, failure) for row in rows):
+            rejected.append({"configuration": failure["configuration"], "workload": shape.get("name"),
+                             "run_ids": [failure["run_id"]],
+                             "reasons": [f"no successful verified measurement: {failure['status']}", failure["error"]["message"]]})
     return {"status": "ok" if winner else "no feasible configuration",
-            "memory_budget_gib": memory_budget_gb, "max_perplexity_increase_pct": max_increase_pct,
+            "objective": objective, "memory_budget_gib": memory_budget_gb, "max_perplexity_increase_pct": max_increase_pct,
             "selection": winner, "rejected": rejected,
             "scope": "Measured workload only; maximum lifecycle PyTorch reserved memory; no extrapolation"}

@@ -1,4 +1,5 @@
 import csv
+import json
 from pathlib import Path
 
 from .results import comparison_rows, load_results
@@ -8,7 +9,8 @@ def write_report(directory):
     root = Path(directory)
     records = load_results(root)
     rows = comparison_rows(records)
-    fields = ["suite_id", "workload_id", "workload", "configuration", "n", "ttft_median_ms",
+    fields = ["suite_id", "workload_id", "workload", "configuration", "batch_size", "prompt_tokens", "output_tokens",
+              "aggregate_decode_median_tokens_per_s", "n", "ttft_median_ms",
               "ttft_iqr_ms", "decode_median_tokens_per_s", "decode_iqr_tokens_per_s",
               "e2e_median_s", "e2e_iqr_s", "peak_allocated_gib", "peak_reserved_gib",
               "perplexity", "perplexity_increase_pct", "run_ids"]
@@ -18,6 +20,8 @@ def write_report(directory):
         for row in rows:
             writer.writerow({"suite_id": row["suite_id"], "workload_id": row["workload_id"],
                 "workload": row["workload"], "configuration": row["configuration"],
+                "batch_size": row["batch_size"], "prompt_tokens": row["prompt_tokens"], "output_tokens": row["output_tokens"],
+                "aggregate_decode_median_tokens_per_s": row["aggregate_decode_tokens_per_s"]["median"],
                 "n": row["e2e_s"]["n"], "ttft_median_ms": row["ttft_s"]["median"] * 1000,
                 "ttft_iqr_ms": row["ttft_s"]["iqr"] * 1000,
                 "decode_median_tokens_per_s": row["decode_tokens_per_s"]["median"],
@@ -37,16 +41,17 @@ def write_report(directory):
         lines += [f"## Suite `{suite}`", "", f"Model: `{example['config']['model']}` at `{example['model_revision']}`.",
                   f"GPU: {env['gpu']['name']}; {env['gpu']['total_memory_bytes'] / 2**30:.2f} GiB. OS: {env['os']}.",
                   f"Packages: `{env['packages']}`.", "",
-                  "| Workload | Config | n | TTFT ms [IQR] | Decode tok/s [IQR] | E2E s [IQR] | Alloc GiB | Reserved GiB | PPL | PPL change % |",
-                  "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+                  f"Attention/settings: `{example['settings']}`.", "",
+                  "| Workload | Config | Batch | n | TTFT ms [IQR] | Aggregate decode tok/s [IQR] | E2E s [IQR] | Alloc GiB | Reserved GiB | PPL | PPL change % |",
+                  "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
         for row in [r for r in rows if r["suite_id"] == suite]:
             def stat(key, scale=1):
                 return f"{row[key]['median'] * scale:.3f} [{row[key]['iqr'] * scale:.3f}]"
             def optional(value):
                 return "not evaluated" if value is None else f"{value:.4f}"
             name = row["workload"].replace("|", "\\|").replace("\n", " ")
-            lines.append(f"| {name} | {row['configuration']} | {row['e2e_s']['n']} | {stat('ttft_s', 1000)} | "
-                f"{stat('decode_tokens_per_s')} | {stat('e2e_s')} | {row['peak_allocated_bytes']/2**30:.3f} | "
+            lines.append(f"| {name} | {row['configuration']} | {row['batch_size']} | {row['e2e_s']['n']} | {stat('ttft_s', 1000)} | "
+                f"{stat('aggregate_decode_tokens_per_s')} | {stat('e2e_s')} | {row['peak_allocated_bytes']/2**30:.3f} | "
                 f"{row['peak_reserved_bytes']/2**30:.3f} | {optional(row['perplexity'])} | {optional(row['perplexity_increase_pct'])} |")
         lines += ["", "Workload IDs:", ""]
         for workload_id in sorted({r["workload_id"] for r in rows if r["suite_id"] == suite}):
@@ -66,6 +71,28 @@ def write_report(directory):
         lines.append("")
     if not rows:
         lines += ["No successful benchmark measurements available.", ""]
+    capacity_path = root / "capacity.json"
+    if capacity_path.exists():
+        state = json.loads(capacity_path.read_text(encoding="utf-8"))
+        identity = state["identity"]
+        lines += ["## Capacity search", "", f"Status: **{state['status']}**. "
+                  f"Axis: `{identity['config']['capacity']['axis']}`. Effective reserved-memory budget "
+                  f"after safety margin/device cap: {identity['effective_budget_bytes']/2**30:.3f} GiB.", "",
+                  "Search assumes approximately monotonic feasibility; adjacent candidates are checked. "
+                  "A range-exhausted result is only a lower bound on hardware capacity. Capacity alone does not verify quality.", ""]
+        if state.get("error"):
+            lines += [f"Stopped: {state['error']}", ""]
+        for configuration, boundary in state["boundaries"].items():
+            lines.append(f"- {configuration}: confirmed selected {boundary['selected']}; next infeasible "
+                         f"{boundary['next_infeasible']}; range exhausted: {boundary['range_exhausted']}.")
+        lines += ["", "| Configuration | Candidate | Confirmation | Feasible | Reason | Raw run |",
+                  "|---|---:|---:|---|---|---|"]
+        for attempt in state["attempts"].values():
+            run = attempt.get("run_id")
+            evidence = f"[{run}]({run}.result.json)" if run else "not executed (context constraint)"
+            lines.append(f"| {attempt['configuration']} | {attempt['candidate']} | {attempt['repeat']} | "
+                         f"{attempt.get('feasible', 'pending')} | {attempt.get('reason', 'interrupted')} | {evidence} |")
+        lines.append("")
     failures = [r for r in records if r["status"] != "ok"]
     if failures:
         lines += ["## Failed or skipped attempts", ""]

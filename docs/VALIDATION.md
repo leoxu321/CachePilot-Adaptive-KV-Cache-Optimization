@@ -1,5 +1,8 @@
 # Verified implementation status
 
+This file records the historical v0.1 validation. For the completed v0.2 tuning
+extension, see [TUNING_VALIDATION.md](TUNING_VALIDATION.md).
+
 Local validation date: **2026-11-08**. No cloud inference or paid APIs were used.
 
 ## Hardware and environment observed
